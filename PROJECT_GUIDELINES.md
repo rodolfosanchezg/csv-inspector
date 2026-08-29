@@ -16,7 +16,12 @@ There is no backend.
 
 - `index.html` contains the page structure and links project assets.
 - `css/styles.css` contains styles.
+- `js/csv-counting.js` contains reusable CSV record and column counting helpers.
 - `js/app.js` contains client-side behavior.
+- `tests/counting-tests.html` and `tests/counting-tests.js` provide browser-based tests.
+
+The project uses classic browser scripts, so load `js/csv-counting.js` before
+`js/app.js` or the test runner.
 
 ## Development principles
 
