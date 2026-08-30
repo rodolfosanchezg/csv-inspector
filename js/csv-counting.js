@@ -18,8 +18,17 @@ function getColumnNames(csvText) {
   let columnName = '';
   let insideQuotes = false;
   let fieldWasQuoted = false;
+  let quoteHasClosed = false;
+
+  function finishColumn() {
+    columnNames.push(fieldWasQuoted ? columnName : columnName.trim());
+    columnName = '';
+    fieldWasQuoted = false;
+    quoteHasClosed = false;
+  }
 
   // Delimiting quotes are omitted, and doubled quotes inside quoted fields become one quote.
+  // Whitespace outside quoted fields is discarded, while inner whitespace is preserved.
   // Only commas outside quoted fields separate columns; multiline fields are unsupported.
   for (let index = 0; index < headerLine.length; index += 1) {
     if (headerLine[index] === '"') {
@@ -28,21 +37,26 @@ function getColumnNames(csvText) {
         index += 1;
       } else {
         if (!insideQuotes) {
-          fieldWasQuoted = true;
+          if (columnName.trim() === '') {
+            columnName = '';
+            fieldWasQuoted = true;
+          }
+        } else {
+          quoteHasClosed = true;
         }
 
         insideQuotes = !insideQuotes;
       }
     } else if (headerLine[index] === ',' && !insideQuotes) {
-      columnNames.push(fieldWasQuoted ? columnName : columnName.trim());
-      columnName = '';
-      fieldWasQuoted = false;
+      finishColumn();
+    } else if (fieldWasQuoted && quoteHasClosed && headerLine[index].trim() === '') {
+      continue;
     } else {
       columnName += headerLine[index];
     }
   }
 
-  columnNames.push(fieldWasQuoted ? columnName : columnName.trim());
+  finishColumn();
   return columnNames;
 }
 

@@ -59,6 +59,11 @@ runTest(
   ['name', 'age', 'city'],
 );
 runTest(
+  'Column names: Windows CRLF line endings',
+  () => getColumnNames('a,b,c\r\nx,y,z'),
+  ['a', 'b', 'c'],
+);
+runTest(
   'Column names: unquoted whitespace is trimmed',
   () => getColumnNames('first name, last name, email'),
   ['first name', 'last name', 'email'],
@@ -67,6 +72,11 @@ runTest(
   'Column names: quoted whitespace is preserved',
   () => getColumnNames('" first name ", last name'),
   [' first name ', 'last name'],
+);
+runTest(
+  'Column names: whitespace outside quoted fields is trimmed',
+  () => getColumnNames('name, " role " , city'),
+  ['name', ' role ', 'city'],
 );
 runTest(
   'Column names: quoted comma',

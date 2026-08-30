@@ -2,11 +2,13 @@ const fileInput = document.querySelector('#csv-file');
 const fileNameOutput = document.querySelector('.file-name');
 const recordCountOutput = document.getElementById('record-count');
 const columnCountOutput = document.getElementById('column-count');
+const columnNamesSection = document.getElementById('column-names-section');
 const columnNamesOutput = document.getElementById('column-names');
 let csvContents = '';
 let latestReadId = 0;
 
 function displayColumnNames(columnNames) {
+  columnNamesSection.hidden = columnNames.length === 0;
   columnNamesOutput.replaceChildren();
 
   columnNames.forEach((columnName) => {
