@@ -7,28 +7,45 @@ function countRecords(csvText) {
   return Math.max(getNonEmptyLines(csvText).length - 1, 0);
 }
 
-function countColumns(csvText) {
+function getColumnNames(csvText) {
   const headerLine = getNonEmptyLines(csvText)[0];
 
   if (!headerLine) {
-    return 0;
+    return [];
   }
 
-  let columnCount = 1;
+  const columnNames = [];
+  let columnName = '';
   let insideQuotes = false;
+  let fieldWasQuoted = false;
 
+  // Delimiting quotes are omitted, and doubled quotes inside quoted fields become one quote.
   // Only commas outside quoted fields separate columns; multiline fields are unsupported.
   for (let index = 0; index < headerLine.length; index += 1) {
     if (headerLine[index] === '"') {
       if (insideQuotes && headerLine[index + 1] === '"') {
+        columnName += '"';
         index += 1;
       } else {
+        if (!insideQuotes) {
+          fieldWasQuoted = true;
+        }
+
         insideQuotes = !insideQuotes;
       }
     } else if (headerLine[index] === ',' && !insideQuotes) {
-      columnCount += 1;
+      columnNames.push(fieldWasQuoted ? columnName : columnName.trim());
+      columnName = '';
+      fieldWasQuoted = false;
+    } else {
+      columnName += headerLine[index];
     }
   }
 
-  return columnCount;
+  columnNames.push(fieldWasQuoted ? columnName : columnName.trim());
+  return columnNames;
+}
+
+function countColumns(csvText) {
+  return getColumnNames(csvText).length;
 }
