@@ -9,11 +9,11 @@ function runTest(name, getActual, expected) {
 
   try {
     const actual = getActual();
-    const passed = actual === expected;
+    const passed = JSON.stringify(actual) === JSON.stringify(expected);
 
     result.textContent = passed
       ? `PASS: ${name}`
-      : `FAIL: ${name} (expected ${expected}, received ${actual})`;
+      : `FAIL: ${name} (expected ${JSON.stringify(expected)}, received ${JSON.stringify(actual)})`;
 
     if (passed) {
       passedTests += 1;
@@ -50,6 +50,43 @@ runTest(
   'Columns: escaped double quotes',
   () => countColumns('name,"She said ""hello"", team",city'),
   3,
+);
+
+runTest('Column names: empty CSV', () => getColumnNames(''), []);
+runTest(
+  'Column names: normal header',
+  () => getColumnNames('name,age,city'),
+  ['name', 'age', 'city'],
+);
+runTest(
+  'Column names: Windows CRLF line endings',
+  () => getColumnNames('a,b,c\r\nx,y,z'),
+  ['a', 'b', 'c'],
+);
+runTest(
+  'Column names: unquoted whitespace is trimmed',
+  () => getColumnNames('first name, last name, email'),
+  ['first name', 'last name', 'email'],
+);
+runTest(
+  'Column names: quoted whitespace is preserved',
+  () => getColumnNames('" first name ", last name'),
+  [' first name ', 'last name'],
+);
+runTest(
+  'Column names: whitespace outside quoted fields is trimmed',
+  () => getColumnNames('name, " role " , city'),
+  ['name', ' role ', 'city'],
+);
+runTest(
+  'Column names: quoted comma',
+  () => getColumnNames('name,"job title, department",city'),
+  ['name', 'job title, department', 'city'],
+);
+runTest(
+  'Column names: escaped double quotes',
+  () => getColumnNames('name,"preferred ""display"" name",city'),
+  ['name', 'preferred "display" name', 'city'],
 );
 
 testSummary.textContent = `${passedTests} of ${totalTests} tests passed.`;
